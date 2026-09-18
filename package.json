@@ -1,0 +1,35 @@
+{
+  "name": "claude-planner",
+  "version": "1.0.0",
+  "description": "Two Claude Code skills that separate deciding from doing: /planfirst investigates and stops, /proceed executes only what was approved.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Ruel Nopal",
+  "homepage": "https://github.com/raketbizdev/claude-planner#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raketbizdev/claude-planner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/raketbizdev/claude-planner/issues"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "agent-skills",
+    "planning",
+    "workflow"
+  ],
+  "bin": {
+    "claude-planner": "./cli.mjs"
+  },
+  "files": [
+    "skills",
+    "cli.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

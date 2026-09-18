@@ -1,0 +1,15 @@
+{
+  "name": "claude-planner",
+  "description": "A plan-then-execute gate for Claude Code: investigate read-only, present the plan, and change nothing until it is explicitly approved.",
+  "owner": {
+    "name": "Ruel Nopal",
+    "url": "https://github.com/raketbizdev"
+  },
+  "plugins": [
+    {
+      "name": "claude-planner",
+      "source": "./",
+      "description": "/planfirst investigates and stops; /proceed executes only what was approved. Only the literal /proceed opens the gate — not \"yes\", \"ok\" or \"looks good\"."
+    }
+  ]
+}

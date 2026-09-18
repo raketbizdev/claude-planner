@@ -1,8 +1,6 @@
-# Two skills that separate deciding from doing
+# claude-planner
 
-`/planfirst` investigates and stops. `/proceed` executes what was approved and nothing else.
-
-They are written for [Claude Code](https://claude.com/claude-code) and invoked by name.
+Two Claude Code skills that separate deciding from doing.
 
 ```
 /planfirst   THINK → INVESTIGATE → UNDERSTAND → PLAN → STOP
@@ -102,26 +100,131 @@ only because something was run and its output read**. Compiling is not evidence.
 An unticked box with a reason is a useful report. A ticked box that was assumed is a lie that
 costs somebody an afternoon.
 
+## Which surfaces run these
+
+Agent Skills do not run everywhere, and the differences are not obvious. This table is the
+thing to read before choosing how to install.
+
+| Surface | Runs skills? | From where |
+|---|---|---|
+| Terminal CLI | yes | personal, project, plugin, claude.ai sync |
+| IDE extensions (VS Code, JetBrains) | yes | personal, project, plugin, claude.ai sync |
+| Desktop app, local session | yes | personal, project, plugin, claude.ai sync |
+| Cowork | yes | plugin, claude.ai sync — **not** personal |
+| Cloud sessions (claude.ai/code) | yes | project, plugin, claude.ai sync — **not** personal |
+| **claude.ai chat** | **no** | — |
+| **Claude Design** | **no** | — |
+
+The row that catches people is **personal**. From Anthropic's documentation:
+
+> Cowork sessions and cloud sessions, including routines, don't read `~/.claude/skills/` on
+> your machine.
+
+Cloud sessions run on Anthropic's machines. Your home directory is not there. So installing
+locally — the first route below — does not reach them, however it is done.
+
 ## Install
 
-Every project on this machine:
+### Every project on this machine
 
 ```bash
-git clone https://github.com/raketbizdev/claude-skills.git
-cd claude-skills
-./install.sh
+npx claude-planner
 ```
 
-It copies both into `~/.claude/skills/`. Anything already sitting at those names is moved aside
-with a timestamp — into `~/.claude/skills-backup/`, **not** beside the skills — and never
-deleted. `./install.sh --uninstall` reverses it and puts the backup back.
+Copies both skills into `~/.claude/skills/`. Anything already at those names is moved to
+`~/.claude/skills-backup/` — **not** beside the skills — and never deleted.
+`npx claude-planner --uninstall` reverses it and puts the backup back.
 
-Update with `git pull && ./install.sh`.
+Reaches the terminal, IDE extensions and the desktop app's local sessions. **Not** Cowork or
+cloud sessions.
 
-### Two things about skill discovery, learned the hard way
+### Anyone, on any Claude Code surface
 
-This installer used to symlink, so that one `git pull` would update every project at once.
-That silently broke both skills:
+```bash
+/plugin marketplace add anthropics/claude-plugins-community
+/plugin install claude-planner
+```
+
+Skills arrive namespaced: `/claude-planner:planfirst` and `/claude-planner:proceed`.
+
+The marketplace only has to be added once; afterwards `/plugin install claude-planner` is
+enough on its own. `claude-plugins-official` is registered automatically but `claude-community`
+is not, which is why the first line exists. On Claude Code v2.1.275 or later both steps
+collapse into one:
+
+```bash
+/plugin install claude-planner --marketplace anthropics/claude-plugins-community
+```
+
+Or install straight from this repository, without the community catalog:
+
+```bash
+/plugin marketplace add raketbizdev/claude-planner
+/plugin install claude-planner
+```
+
+### Cowork and cloud sessions
+
+Enable the plugin for your account on claude.ai. Claude Code then downloads it into each
+session's own environment at startup, as `claude-planner@synced`, with no install step — and it
+reaches terminal sessions too (v2.1.273+). Updates flow from the catalog; a synced plugin is
+managed on claude.ai rather than with `claude plugin install`.
+
+You can also upload the two skills to your claude.ai account directly, under **Customize** in
+the desktop sidebar or the skills settings on claude.ai. That gives `/planfirst` rather than
+`/claude-planner:planfirst`.
+
+### One repository, and everyone who clones it
+
+```bash
+cp -R skills/planfirst skills/proceed <your repo>/.claude/skills/
+git add .claude/skills && git commit -m "Add the planfirst and proceed skills"
+```
+
+The files travel with the repository, so they work for teammates and in cloud sessions on it —
+with no install step for anyone.
+
+**Committing the skill files is what works. Declaring the plugin under `enabledPlugins` in
+`.claude/settings.json` is not a substitute:** that setting enables a plugin, it does not fetch
+one. A plugin from an external source stays uninstalled until somebody installs it.
+
+### Pick one route per person
+
+If a skill exists in both `~/.claude/skills/` and a project's `.claude/skills/`, **the project
+copy wins** — two versions under one name, drifting apart with nothing to warn you.
+
+The plugin is different: plugin skills are namespaced, so installing the plugin *and* the local
+copy leaves you with both `/planfirst` and `/claude-planner:planfirst`, both working. Nothing
+breaks; it is just two copies to keep in step. `npx claude-planner` says so when it detects the
+plugin, rather than letting you find out later.
+
+## Using these with Claude Design
+
+**Claude Design runs no Agent Skills.** Neither does claude.ai chat. No packaging changes that
+— there is nothing to install into those surfaces.
+
+What works is the gate sitting upstream, in Claude Code, where the skills that reach into
+Claude Design actually run:
+
+```
+/planfirst   plan the design change, and stop
+/proceed     then:
+               /design        publish a canvas of editable artboards
+               /design-sync   push components into a design-system project
+```
+
+`/design` is a built-in Claude Code skill (research preview, v2.1.234+) that brings Claude
+Design's artboard workflow into the CLI and desktop app. `/design-sync` keeps a local component
+library in step with a Claude Design project. Neither needs installing from here, and neither
+is wrapped or vendored by this package.
+
+So design work is gated the same way everything else is — you just run the gate in Claude Code
+before the design skill, not inside Claude Design.
+
+## Two things about skill discovery, learned the hard way
+
+This installer used to symlink into `~/.claude/skills/`, so that one `git pull` would update
+every project at once. That silently broke both skills:
 
 - **Claude Code skips symlinked skill directories.** `/planfirst` simply stopped existing.
 - **A skill is named by its DIRECTORY, not by the `name:` in its frontmatter.** So the
@@ -129,20 +232,16 @@ That silently broke both skills:
   `planfirst.backup.20260918163405` and `proceed.backup.20260918163405`.
 
 Anything in `~/.claude/skills/` becomes a skill. Keep copies, not links, and keep backups
-somewhere else.
+somewhere else. Both rules are why `cli.mjs` works the way it does.
 
-**One project, and everyone who clones it** — no install step for them at all:
+Two more, for anyone reading the source and wondering:
 
-```bash
-cp -R skills/planfirst skills/proceed <your repo>/.claude/skills/
-git add .claude/skills && git commit -m "Add the planfirst and proceed skills"
-```
-
-Pick one or the other per person. If a skill exists both in `~/.claude/skills/` and in a
-project's `.claude/skills/`, **the project copy wins** — two versions under one name, drifting
-apart silently.
-
-Then start a new session and type `/planfirst`.
+- **`cli.mjs` sits at the repository root, not in `bin/`.** npm convention points `bin` at
+  `./bin/something.js`; a plugin carrying a top-level `bin/` directory cannot be distributed
+  through claude.ai organization settings. The `bin` *field* is fine, the `bin/` *directory* is
+  not.
+- **There is no postinstall hook.** `npm install` must not write to your home directory.
+  Copying skills is something you choose by running a command.
 
 ## They assume nothing
 
