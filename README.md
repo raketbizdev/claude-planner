@@ -112,10 +112,24 @@ cd claude-skills
 ./install.sh
 ```
 
-It symlinks both into `~/.claude/skills/`, so a later `git pull` updates them everywhere at
-once. Anything already sitting at those names is moved aside with a timestamp, never deleted.
-`./install.sh --copy` copies instead, and `./install.sh --uninstall` reverses either and puts
-the backup back.
+It copies both into `~/.claude/skills/`. Anything already sitting at those names is moved aside
+with a timestamp — into `~/.claude/skills-backup/`, **not** beside the skills — and never
+deleted. `./install.sh --uninstall` reverses it and puts the backup back.
+
+Update with `git pull && ./install.sh`.
+
+### Two things about skill discovery, learned the hard way
+
+This installer used to symlink, so that one `git pull` would update every project at once.
+That silently broke both skills:
+
+- **Claude Code skips symlinked skill directories.** `/planfirst` simply stopped existing.
+- **A skill is named by its DIRECTORY, not by the `name:` in its frontmatter.** So the
+  timestamped backups sitting beside it *were* discovered, and became two skills called
+  `planfirst.backup.20260918163405` and `proceed.backup.20260918163405`.
+
+Anything in `~/.claude/skills/` becomes a skill. Keep copies, not links, and keep backups
+somewhere else.
 
 **One project, and everyone who clones it** — no install step for them at all:
 
