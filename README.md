@@ -295,6 +295,18 @@ the first line exists. The `@claude-community` suffix names the marketplace — 
 marketplace's own `name`, not its repository path, and it is only needed when the same plugin
 name exists in more than one catalog you have added.
 
+On Claude Code v2.1.275 or later the two lines collapse into one, naming the marketplace
+source rather than adding it first — note the plugin name goes **bare**, with no `@marketplace`
+suffix:
+
+```bash
+/plugin install claude-planner --marketplace anthropics/claude-plugins-community
+```
+
+That `--marketplace` flag belongs to the in-session `/plugin install`. The shell command
+`claude plugin install` does not have it; there, add the marketplace first and use
+`claude-planner@claude-community`.
+
 Nothing about the community route changes what you get. Approved entries are pinned to a commit
 SHA of **this** repository, so it installs the same two files as the line above it.
 
