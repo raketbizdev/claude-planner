@@ -184,65 +184,74 @@ Where:           file, service, table, resource or configuration —
                  with line numbers where they are known
 Why:             why this step is necessary
 How:             the intended approach
-Change:          the edit itself — before and after (see below)
-Run:             the commands to do it, exactly as typed (see below)
 Expected Result: what is true once it is done
 Reversible:      yes — how it is undone
                  no  — why it is a one-way door
 Who:             me, or the user (and why it cannot be done for them)
 ```
 
-**`Change` is the field a reader can check.** "Update the header component" is an instruction;
-nobody reading it can tell whether you opened the right file. Show the edit:
+Two blocks follow each step: the edit, and the commands that make it.
 
+**`Change` is the block a reader can check.** "Update the header component" is an instruction;
+nobody reading it can tell whether you opened the right file. Show the edit as a unified diff in
+its own fence, tagged `diff`, so it renders red and green wherever the plan is read:
+
+````
+**Change** — web/components/Header.tsx:18-24
+
+```diff
+@@ -18,7 +18,4 @@
+-<nav className="flex gap-6">
+-  {LINKS.map((l) => <NavLink key={l.href} {...l} />)}
+-</nav>
++<a href={DOWNLOAD_URL} aria-label="Download the app">
++  <DownloadIcon className="h-5 w-5" />
++</a>
 ```
-Change:   web/components/Header.tsx:18-24
+````
 
-          - before -
-          <nav className="flex gap-6">
-            {LINKS.map((l) => <NavLink key={l.href} {...l} />)}
-          </nav>
-
-          - after -
-          <a href={DOWNLOAD_URL} aria-label="Download the app">
-            <DownloadIcon className="h-5 w-5" />
-          </a>
-```
-
-- **Copy the before block out of the file. Do not retype it from memory.** It is the evidence
-  that the file was read at the line the step claims, and a remembered one proves nothing.
+- **Copy the `-` lines out of the file. Do not retype them from memory.** They must match the
+  file byte for byte, or the diff will not apply and the evidence is worth nothing.
+- **Check that it applies before presenting it.** `git apply --check` changes nothing, so this
+  phase may run it. A diff with wrong line offsets is a step that fails the moment it is pasted.
 - Excerpt the lines that change plus enough context to place them. Never paste a whole file.
-- For a new file, show its content — or its skeleton if it is long, and say which.
-- For one edit repeated across many files, show it once in full and list the remaining paths
+- For a new file, show its content in a fence tagged with its language rather than as a diff —
+  or its skeleton if it is long, and say which.
+- For one edit repeated across many files, show one diff in full and list the remaining paths
   with their line numbers.
 - Where the exact text cannot be known until an earlier step has run, write `Not yet verified.`
-  and say what will settle it. An invented before block is worse than an absent one.
-- For a step that changes no code — a decision, a login, a deploy, a release — write
-  `Change: n/a — <why>`.
+  and say what will settle it. An invented diff is worse than an absent one.
 
 **`Run` is what makes the plan followable without you.** A plan that only an agent can execute
 is a plan the reader cannot check, hand to a colleague, or repeat in six months. Give the
-commands as typed:
+commands in their own fence, tagged `bash`:
 
+````
+**Run**
+
+```bash
+npm run lint -- web/components/Header.tsx
+git apply <<'PATCH'   # the diff above, verbatim
+PATCH
 ```
-Run:   npm test
-       git apply <<'PATCH'
-       …the diff from Change:, verbatim…
-       PATCH
-```
+````
 
 - Commands must work **as pasted**, in the order given, from the working directory stated at the
   top of this section. Say the directory once; do not repeat `cd` in every step.
-- `Run` and `Change` must agree. If pasting the commands would not produce the before/after
-  shown above them, one of the two is wrong.
+- **If the step applies the diff above, apply it — do not restate it.** The same edit written
+  twice is two things that can disagree.
 - Mark anything a command cannot do: `Run: by hand — <what to click, where>`. An interactive
-  login, a console toggle, a one-time password. Do not dress a human action up as a command.
+  login, a console toggle, a one-time password. Do not dress a human action up as a shell line.
 - Placeholders are written `<like-this>`, and the line below says what fills them. A pasted
   command with an unmarked placeholder fails somewhere confusing.
 - A destructive command is marked as such and carries its undo on the next line. `Reversible:`
   says whether it can be undone; `Run:` says how.
 - Where the command cannot be known until an earlier step has run, write `Not yet verified.` and
   say what settles it.
+
+**A step that changes no code stays a single block.** A decision, a login, a dashboard toggle, a
+release: write `Change: n/a — <why>` and `Run: by hand — <what to click, where>` as fields inside
+the step block itself. Do not open a diff fence for a step that has no diff.
 
 **`Reversible` is not paperwork.** A migration that has been applied, a deploy that has gone
 out, a phone number that has been published, a row that has been deleted — each is a door that

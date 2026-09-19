@@ -82,12 +82,12 @@ phase real, and the skill decides what the plan has to prove before you trust it
   one-way doors, and the plan says so before the step, not after.
 - **Ownership marked per step.** `Who:` turns "I am blocked, over to you" into something the
   reader saw coming.
-- **The actual edit, before and after.** Every code step carries a `Change:` block — the verified
-  path with line numbers, the lines as they are today, and the lines as they will be. You review
-  the change, not a description of it.
-- **Commands you can paste.** Every step carries a `Run:` block — the commands as typed, from
-  a stated working directory, in order. A plan is a tutorial you can follow yourself, not a
-  script only an agent can execute.
+- **The actual edit, as a diff.** Every code step carries a `Change` block — a unified diff at a
+  verified path, rendered red and green, checked with `git apply --check` before you ever see it.
+  You review the change, not a description of it.
+- **Commands you can paste.** Every step carries a `Run` block — the commands as typed, from a
+  stated working directory, in order, in its own fence with its own copy button. A plan is a
+  tutorial you can follow yourself, not a script only an agent can execute.
 - **Landing order (§17).** When a change spans a schema and an app, the plan says what lands first
   and **what is broken in between**.
 - **Honest reporting.** A criterion is ticked only because a command was run and its output read.
@@ -385,7 +385,7 @@ oversight rather than a decision.
 | 3 | Root Cause or Reason for Change | The evidence, marked verified or hypothesis |
 | 4 | Scope | In scope, and explicitly out — no "while we're here" |
 | 5 | Affected Components | Paths, current responsibility, required change, impact |
-| 6 | Detailed Execution Steps | Each with the edit (`Change:`), the commands to make it (`Run:`), plus `Reversible:` and `Who:` |
+| 6 | Detailed Execution Steps | Each with the edit as a diff (`Change`), the commands to make it (`Run`), plus `Reversible:` and `Who:` |
 | 7 | Data Flow | The real path through the system |
 | 8 | Business Rules | What must still hold afterwards |
 | 9 | Edge Cases | Realistic ones for this change |
