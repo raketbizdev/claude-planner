@@ -1,6 +1,6 @@
 {
   "name": "claude-planner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Two Claude Code skills that separate deciding from doing: /planfirst investigates and stops, /proceed executes only what was approved.",
   "type": "module",
   "license": "MIT",
