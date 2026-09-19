@@ -10,7 +10,7 @@ and withholds permission to *change*. The plan it produces is the deliverable; t
 somebody else's decision, made later, with a different command.
 
 ```
-THINK → INVESTIGATE → UNDERSTAND → PLAN → STOP
+THINK → INVESTIGATE → UNDERSTAND → VALIDATE → PLAN → STOP
 ```
 
 ## Why the gate is the whole point
@@ -64,6 +64,24 @@ A borderline command is decided by one question: **could this leave the system d
 how I found it?** If yes, it waits for `/proceed`.
 
 Writing to a scratch directory to hold notes is fine. Writing into the user's project is not.
+
+## Validate before planning
+
+UNDERSTAND produces a picture of the system. VALIDATE is where that picture meets the system
+itself, before anything is built on top of it.
+
+Name the single assumption most likely to be wrong and most expensive to discover late, then run
+the one read-only command that settles it — a query, a `--dry-run`, a read as the actual role, a
+`curl` of the real endpoint. Report what it returned, verbatim, in section 0.
+
+**If the probe contradicts your understanding, go back to INVESTIGATE.** Do not plan around the
+contradiction and do not note it as a risk and carry on. The plan you were about to write was
+about a system that does not exist; the one worth writing starts from what the probe just showed
+you.
+
+If nothing about the task can be probed — a pure documentation change, say — write
+`Nothing to probe: <why>` in section 0 and move on. An invented probe is worse than an honest
+absence.
 
 ## The plan
 

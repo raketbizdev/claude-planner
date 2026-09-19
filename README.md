@@ -6,7 +6,7 @@
 Two Claude Code skills that separate **deciding** from **doing**.
 
 ```
-/planfirst   THINK → INVESTIGATE → UNDERSTAND → PLAN → STOP
+/planfirst   THINK → INVESTIGATE → UNDERSTAND → VALIDATE → PLAN → STOP
 /proceed     EXECUTE → TEST → VERIFY → REPORT
 ```
 
@@ -73,8 +73,9 @@ phase real, and the skill decides what the plan has to prove before you trust it
 ## Key features
 
 - **A gate that does not open to enthusiasm.** Only `/proceed` authorises execution.
-- **A first probe, run before planning further.** §0 names the assumption most likely to be wrong
-  and most expensive to discover late, then runs one read-only command to settle it.
+- **VALIDATE — a probe run before planning further.** §0 names the assumption most likely to be
+  wrong and most expensive to discover late, then runs one read-only command to settle it. A probe
+  that contradicts the understanding sends the run back to INVESTIGATE rather than into the plan.
 - **Source dating.** Every source the plan rests on is listed with its date and whether it is the
   record or a copy of one.
 - **Reversibility marked per step.** Migrations, deploys, published links and deleted rows are
