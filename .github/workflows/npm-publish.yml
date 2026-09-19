@@ -15,8 +15,15 @@
 name: Publish to npm
 
 on:
+  # `published`, not `created`. GitHub never fires `created` for a DRAFT release, and a draft
+  # that is later published fires `published` instead — so a release written the way the UI
+  # nudges you towards, "Save draft" and then "Publish release", would trigger nothing at all
+  # and the version would silently never reach npm.
+  #
+  #   "Workflows are not triggered for the created, edited, or deleted activity types for
+  #    draft releases."  — GitHub, Events that trigger workflows
   release:
-    types: [created]
+    types: [published]
   # Lets you publish without cutting a release — useful the first time, or to retry after
   # adding the token. Re-publishing a version npm already has fails, which is the correct
   # outcome rather than something to work around.
