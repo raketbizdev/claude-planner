@@ -1,33 +1,69 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+# Publish claude-planner to npm when a GitHub release is created.
+#
+# This started as GitHub's default Node template, which assumes a package with dependencies
+# and a test suite. This one has neither: zero dependencies by design, so there is no
+# package-lock.json for `npm ci` to read, and nothing to compile. Both of the template's
+# steps failed here before this rewrite:
+#
+#   npm ci    → "can only install with an existing package-lock.json"
+#   npm test  → "Missing script: test"
+#
+# `npm test` now runs test.mjs, which packs the tarball, installs it the way a stranger
+# would, and drives the CLI against a throwaway directory. That is the only test worth
+# having here, because it is the only thing that can catch `npx claude-planner` being broken.
 
-name: Node.js Package
+name: Publish to npm
 
 on:
   release:
     types: [created]
+  # Lets you publish without cutting a release — useful the first time, or to retry after
+  # adding the token. Re-publishing a version npm already has fails, which is the correct
+  # outcome rather than something to work around.
+  workflow_dispatch:
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-      - run: npm test
+      # No `npm ci`, no `npm install`: there are no dependencies to install.
+      - name: Smoke test what actually ships
+        run: npm test
 
-  publish-npm:
-    needs: build
+  publish:
+    needs: verify
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm publish
+
+      # Fail with a sentence somebody can act on, rather than a 401 from the registry.
+      - name: Check the token is present
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::No NPM_TOKEN secret on this repository."
+            echo "Add one at Settings → Secrets and variables → Actions → New repository secret."
+            echo "Name it NPM_TOKEN. Generate the value at npmjs.com → Access Tokens,"
+            echo "choosing the Automation type so it works without an OTP prompt."
+            exit 1
+          fi
+
+      - name: Publish
+        # --access public is explicit rather than implied. Unscoped packages default to
+        # public, but saying so means a later rename to @scope/claude-planner cannot
+        # silently start publishing privately.
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
