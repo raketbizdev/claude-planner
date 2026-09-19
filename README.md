@@ -408,7 +408,7 @@ plugin, rather than letting you find out later.
 **Claude Design is not a documented skills surface** — its help pages do not mention Agent
 Skills at all. claude.ai chat is different: it does run them, but it has no repository to
 investigate and no files to change, which comes to the same thing for these two. No packaging
-changes either case.
+change alters that — there is nothing to install into either surface.
 
 What works is the gate sitting upstream, in Claude Code, where the skills that reach into
 Claude Design actually run:
