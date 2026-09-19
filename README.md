@@ -45,42 +45,18 @@ So `/planfirst` is an *authority level*, not a writing style. It grants permissi
 withholds permission to change. A run that investigates well and then implements "because it was
 obvious" has failed at its only job.
 
-### How this differs from Claude Code's plan mode
+### How this compares
 
-Claude Code already has a plan mode (`Shift+Tab`, `/plan`, or `claude --permission-mode plan`),
-and it is good: **your edits are blocked by the tool layer until you approve.** That enforcement
-is stronger than anything a skill can do, and this package does not replace it.
+Two other things sit either side of this package. **Claude Code's plan mode** (`Shift+Tab`,
+`/plan`, or `claude --permission-mode plan`) is a permission mode: it blocks your edits at the
+tool layer until you approve, which is stronger enforcement than any skill can manage, and it
+says nothing about what the plan must contain. **[Superpowers](https://github.com/obra/superpowers)**
+(MIT, by obra) is the other end of the scale — *"an agentic skills framework & software
+development methodology that works"*, fifteen skills carrying a change from a rough idea to a
+merged branch. This package is two skills and one gate.
 
-What plan mode does not specify is *what the plan must contain*, or what happens to it afterwards.
-
-| | Plan mode | `/planfirst` + `/proceed` |
-|---|---|---|
-| What it is | A permission mode enforced by Claude Code | Skills — instructions the model follows |
-| How edits are stopped | **Hard.** The tool layer refuses them | **Soft.** The model is instructed not to edit |
-| What the plan must contain | Unspecified | 18 required sections |
-| Are the sources current? | Not addressed | §0 dates every source and says whether it is authoritative or a copy |
-| The riskiest assumption | Not addressed | §0 names it and runs the read-only command that settles it, first |
-| Can each step be undone? | Not addressed | Every step marked `Reversible: yes/no`, with why |
-| Who performs each step? | Not addressed | Every step marked `Who:` — interactive logins and live-DB pushes are named up front |
-| How you know it worked | Not addressed | §13 acceptance criteria; `/proceed` ticks only what it observed |
-| Reality disagrees mid-run | Claude adapts and carries on | `/proceed` **stops**, prints what it found, waits for `/proceed` again |
-
-**Use both.** Enter plan mode *and* invoke `/planfirst`: the permission mode makes the read-only
-phase real, and the skill decides what the plan has to prove before you trust it.
-
-Plan mode is not the only comparison worth making — see [Superpowers](#how-this-differs-from-superpowers)
-below for the other end of the scale.
-
----
-
-### How this differs from Superpowers
-
-[Superpowers](https://github.com/obra/superpowers) (MIT, by obra) is the other project people
-compare this to, and it is a much larger thing: *"an agentic skills framework & software
-development methodology that works"* — fifteen skills that carry a change from a rough idea to a
-merged branch. Checked against the repository on 19 September 2026.
-
-Its workflow, named as its README names it:
+Superpowers details checked against its repository on 19 September 2026; its workflow, as its
+README names it:
 
 ```
 brainstorming → using-git-worktrees → writing-plans → subagent-driven-development
@@ -88,47 +64,48 @@ brainstorming → using-git-worktrees → writing-plans → subagent-driven-deve
               → finishing-a-development-branch
 ```
 
-> "The agent checks for relevant skills before any task. Mandatory workflows, not suggestions."
+| | Plan mode | Superpowers | `/planfirst` + `/proceed` |
+|---|---|---|---|
+| **What it is** | A permission mode enforced by Claude Code | A development methodology in 15 skills | Two authority levels in 2 skills |
+| **Span** | The read-only phase, until you approve | Idea → spec → worktree → plan → TDD → review → merged branch | Plan → approve → execute → report |
+| **How it starts** | `Shift+Tab`, `/plan`, `--permission-mode plan` | On its own — the skills trigger automatically | You type `/planfirst` |
+| **How edits are stopped** | **Hard.** The tool layer refuses them | Soft — process, not permissions | **Soft.** The model is instructed not to edit |
+| **What opens the gate** | Approving the plan in the UI | Signing off in conversation: *"once you say go"* | The literal `/proceed`. "yes", "looks good", 👍 do not |
+| **What the plan must contain** | Unspecified — whatever Claude writes | Bite-sized tasks (2–5 min), exact paths, complete code, verification steps | 18 required sections |
+| **Are the sources current?** | Not addressed | Not addressed | §0 dates every source and says whether it is the record or a copy |
+| **The riskiest assumption** | Not addressed | Not addressed | §0 names it and runs the read-only command that settles it, first |
+| **Can each step be undone?** | Not addressed | Not addressed | Every step marked `Reversible: yes/no`, with why |
+| **Who performs each step?** | Not addressed | Not addressed | Every step marked `Who:` — interactive logins and live-DB pushes named up front |
+| **What breaks between steps** | Not addressed | Not addressed | §17 — landing order and the intermediate states people live through |
+| **How you know it worked** | Not addressed | TDD, and review between tasks | §13 acceptance criteria; `/proceed` ticks only what it observed |
+| **Reality disagrees mid-run** | Claude adapts and carries on | Review reports by severity; critical issues block progress | `/proceed` **stops**, prints `PLAN DEVIATION REQUIRED`, waits for `/proceed` again |
+| **Where plans live** | The session | `docs/superpowers/plans/YYYY-MM-DD-<name>.md` | The conversation |
+| **Opinions about how you build** | None | TDD (RED-GREEN-REFACTOR), YAGNI, DRY, worktrees, subagents, review | None — no language, framework, test style or branching model |
+| **Where it runs** | Claude Code | ~15 harnesses: Claude Code, Codex, Cursor, Devin, Gemini, Copilot, Grok, Kimi, OpenCode, Pi, Qwen, Hermes, Muse, Antigravity, Factory Droid | Anywhere Agent Skills run |
 
-The useful comparison is not feature-by-feature. It is **how much each one decides for you.**
+"Not addressed" means exactly that, and it is not a criticism: a permission mode has no business
+dictating plan contents, and a methodology that ships TDD, worktrees and a review loop is solving
+a different problem. The rows are there so you can see which problem each one solves.
 
-| | Superpowers | `/planfirst` + `/proceed` |
-|---|---|---|
-| **What it is** | A development methodology in 15 skills | Two authority levels in 2 skills |
-| **Span** | Idea → spec → worktree → plan → TDD → review → merged branch | Plan → approve → execute → report |
-| **How it starts** | On its own — the skills trigger automatically | You type `/planfirst` |
-| **What opens the gate** | Signing off in conversation: *"once you say go"* | The literal `/proceed`. "yes", "looks good", 👍 do not |
-| **Where plans live** | Written to `docs/superpowers/plans/YYYY-MM-DD-<name>.md` | In the conversation |
-| **What a plan contains** | Bite-sized tasks (2–5 minutes), exact file paths, complete code, verification steps | 18 fixed sections; §0 dates every source and runs a probe before planning further |
-| **Opinions about how you build** | TDD (RED-GREEN-REFACTOR), YAGNI, DRY, worktrees, subagents, review between tasks | None. No language, framework, test style or branching model |
-| **Execution** | A fresh subagent per task with a review after each, or inline with one review at the end | One agent, in your session, in the plan's order |
-| **Reality contradicts the plan** | Code review reports by severity; critical issues block progress | `/proceed` stops, prints `PLAN DEVIATION REQUIRED`, and waits for `/proceed` again |
-| **Harnesses** | Claude Code, Codex, Cursor, Devin, Gemini, Copilot, Grok, Kimi, OpenCode, Pi, Qwen, Hermes, Muse, Antigravity, Factory Droid | Anywhere Agent Skills run |
+**Use plan mode and this together.** Enter plan mode *and* invoke `/planfirst`: the permission
+mode makes the read-only phase real, and the skill decides what the plan has to prove before you
+trust it. They are complementary — one enforces, the other specifies.
 
-**What Superpowers has that this does not**, and it is a long list: a brainstorming phase that
-teases a spec out of the conversation, plans persisted to disk as dated files, enforced TDD,
-isolated worktrees, subagent execution, a code-review loop between tasks, branch finishing, a
-diagnostic skill for when a session misbehaves, and roughly fifteen harnesses to this one's one
-ecosystem. If you want a methodology, it is the thing to install.
+**Superpowers does a great deal this does not**: a brainstorming phase that teases a spec out of
+the conversation, plans persisted to disk as dated files, enforced TDD, isolated worktrees,
+subagent execution, a code-review loop between tasks, branch finishing, a diagnostic skill for
+when a session misbehaves, and roughly fifteen harnesses to this one's one ecosystem. If you want
+a methodology, install it.
 
 **What this has that Superpowers does not** — checked against its `writing-plans` skill, whose
-192 lines contain none of these words:
-
-- **A gate that only one literal command opens.** Superpowers proceeds when you sign off in
-  conversation. Here, `yes`, `ok`, `looks good` and 👍 do not authorise execution; `/proceed`
-  does, and nothing else.
-- **Source dating and a probe before planning.** §0 asks whether each source is the record or a
-  copy of one, names the assumption most likely to be wrong, and runs one read-only command to
-  settle it — before the other seventeen sections are built on top of it.
-- **Reversibility and ownership per step.** Every step says whether it can be undone and who
-  performs it, so one-way doors and interactive logins are visible before the step, not after.
-- **Landing order (§17).** What lands first when a change spans a schema and an app, and what is
-  broken in between.
+192 lines contain none of these words: *reversible*, *rollback*, *undo*, *one-way*, *assumption*,
+*stale*, *probe*. Concretely: a gate only one literal command opens, §0's source dating and probe
+before planning, `Reversible:` and `Who:` on every step, and §17's landing order.
 
 **Running both.** They overlap at exactly one point — the plan — and nowhere else. If you use
-Superpowers, it already owns planning through `writing-plans`, and adding `/planfirst` on top
-means two skills competing for the same moment. Pick one to own it. The rest of Superpowers
-(worktrees, TDD, review, finishing) has no counterpart here and nothing to collide with.
+Superpowers, `writing-plans` already owns that moment, and two skills competing for it helps
+nobody. Pick one to own it; the rest of Superpowers has no counterpart here and nothing to
+collide with.
 
 ---
 
