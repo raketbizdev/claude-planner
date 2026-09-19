@@ -7,6 +7,18 @@ Two Claude Code skills that separate deciding from doing.
 /proceed     EXECUTE → TEST → VERIFY → REPORT
 ```
 
+**In one paragraph:** `/planfirst` investigates your codebase with read-only tools, runs one
+command to test the assumption most likely to be wrong, writes a plan in eighteen fixed
+sections — every step marked reversible or not, and who has to do it — then stops and changes
+nothing. `/proceed` executes that plan, in order and within its scope, and reports against the
+acceptance criteria the plan wrote, ticking only what it actually observed. Nothing but the
+literal `/proceed` opens the gate: not "yes", not "go ahead", not 👍.
+
+```bash
+/plugin marketplace add raketbizdev/claude-planner
+/plugin install claude-planner
+```
+
 ## The problem they solve
 
 An agent that investigates a task and then helpfully fixes what it found has taken the decision
@@ -49,6 +61,42 @@ absent-mindedly. And naming the interactive logins and the live-database pushes 
 new thing when reality disagrees with the plan. It stops, prints what it found and how it
 established it, and waits for `/proceed` again. A deviation is the workflow working; the
 failure is noticing and carrying on regardless.
+
+## How this differs from Claude Code's plan mode
+
+Claude Code already has a **plan mode**, and it is good. Enter it with `Shift+Tab`, by
+prefixing a prompt with `/plan`, or with `claude --permission-mode plan`. Claude then reads
+files and explores, writes a plan, and — this is the important part — **your edits are blocked
+by the tool layer until you approve it.**
+
+That enforcement is stronger than anything a skill can do, and this package does not replace
+it. What plan mode does not do is say anything about *what the plan must contain*, or what
+happens to the plan after you approve it.
+
+| | Plan mode | `/planfirst` + `/proceed` |
+|---|---|---|
+| **What it is** | A permission mode, enforced by Claude Code | Skills — instructions the model follows |
+| **How edits are stopped** | **Hard. The tool layer refuses them.** | Soft. The model is instructed not to edit |
+| **Entering** | `Shift+Tab`, `/plan`, `--permission-mode plan` | `/planfirst` |
+| **Leaving without approving** | `Shift+Tab` again | Just say something else |
+| **What the plan must contain** | Nothing specified — whatever Claude writes | **18 required sections** |
+| **Are the sources current?** | Not addressed | §0 dates every source and says whether it is authoritative **or a copy of one** |
+| **The riskiest assumption** | Not addressed | §0 names it and **runs the read-only command that settles it, before planning further** |
+| **Can each step be undone?** | Not addressed | Every step marked `Reversible: yes/no`, with why |
+| **Who does each step?** | Not addressed | Every step marked `Who:` — so an interactive login or a live-DB push is seen coming |
+| **What breaks between steps?** | Not addressed | §17 — the intermediate states people skip and then live through |
+| **How you know it worked** | Not addressed | §13 acceptance criteria, and `/proceed` ticks only what it observed |
+| **Reality disagrees mid-execution** | Claude adapts and carries on | `/proceed` **stops**, prints what it found, and waits for `/proceed` again |
+| **Where it runs** | Claude Code only | Any surface that runs Agent Skills |
+
+**Use both.** They are not competing. `Shift+Tab` into plan mode *and* invoke `/planfirst`: the
+permission mode makes the read-only phase real, and the skill decides what the plan has to
+prove before you trust it.
+
+The single most useful thing here that plan mode has no opinion about is **§0's probe**. Steps
+are naturally ordered by implementation logic, which means the assumption that can invalidate
+the entire plan gets tested last — after everything is built on top of it. §0 drags that to the
+front and runs one command to settle it. In practice that is where the wasted afternoons live.
 
 ## The plan
 
@@ -99,6 +147,85 @@ only because something was run and its output read**. Compiling is not evidence.
 
 An unticked box with a reason is a useful report. A ticked box that was assumed is a lie that
 costs somebody an afternoon.
+
+## What it looks like
+
+A real example, shortened. The task was removing a website's header navigation and replacing
+it with a download icon.
+
+**You type:**
+
+```
+Remove the nav links and the Browse rentals button from the header,
+replace them with a download icon on the right to balance the logo /planfirst
+```
+
+**You get back** — the plan in full, of which the opening section matters most:
+
+```
+0 · Sources, Assumptions and the First Probe
+
+Source:        web/components/Header.tsx
+Dated:         commit 1d0e13f; tree clean
+Authoritative: YES — the only file that renders the five elements
+
+Source:        design/mockups/Marketplace.dc.html
+Dated:         5 Sep export, committed 16 Sep
+Authoritative: COPY. The design project is the source of record.
+
+Assumption:  There is a public URL the download icon can point at.
+If wrong:    The icon has nowhere honest to go.   ← THIS ONE
+
+The first probe — run now, read-only:
+
+  $ curl -s -o /dev/null -w "%{http_code}" https://example.com/download
+  404
+  $ curl -sL -w "%{http_code}" "https://drive.google.com/file/d/1TRJ…/view"
+  401          ← the release build. "sign in".
+
+Result: there is no public download URL. /download is a 404 and the build sits
+in a private folder that answers 401 to anyone who is not the uploader.
+```
+
+...then sixteen more sections, ending:
+
+```
+STEP 3   ← THE ONLY STEP THAT NEEDS YOUR DECISION
+What:            Decide where the download icon points.
+Reversible:      A — yes, trivially.
+                 B — NO. Publishing the build to a public link cannot be undone;
+                     revoking later does not un-download it.
+Who:             THE USER. B is a sharing change on your account.
+
+PLAN READY. No implementation changes have been executed.
+
+Invoke /proceed to execute this plan.
+```
+
+The probe is the point. Without it the icon gets built, wired to a link, deployed, and the
+401 is discovered by a visitor. With it, the one decision that mattered surfaced before a line
+of code was written — and it turned out to be a decision only a human could make.
+
+**You then type `/proceed`**, and it executes only that plan, finishing with:
+
+```
+EXECUTION COMPLETE
+
+Acceptance Criteria:
+[x] Header shows exactly two things  — bar HTML extracted: 2 anchors, no nav labels
+[x] One row at 360px                 — measured: docScrollWidth 360, icon at x=300..340
+[ ] Screenshots captured             — NOT MET. The app's only sign-in is Google;
+                                       capturing would put real customer data into
+                                       a public directory. Took the documented fallback.
+
+Verification:
+- web gates exit 0 · mobile gates exit 0
+- privacy check: 4 failures, PRE-EXISTING — proved by running it against a clean
+  checkout and getting the identical 11 passed / 4 failed
+```
+
+Note the unticked box and the pre-existing failure proved rather than asserted. That is the
+report working: **a criterion is ticked only because a command was run and its output read.**
 
 ## Which surfaces run these
 
@@ -187,6 +314,38 @@ with no install step for anyone.
 **Committing the skill files is what works. Declaring the plugin under `enabledPlugins` in
 `.claude/settings.json` is not a substitute:** that setting enables a plugin, it does not fetch
 one. A plugin from an external source stays uninstalled until somebody installs it.
+
+## Uninstall
+
+Whichever route you used, removing it is one command. None of them touches anything else in
+`~/.claude/`.
+
+| Installed with | Remove with |
+|---|---|
+| `npx claude-planner` | `npx claude-planner --uninstall` |
+| `/plugin install` | `/plugin uninstall claude-planner` |
+| Uploaded to claude.ai | Delete the skills in **Customize → Skills**, or the claude.ai skills settings |
+| Enabled as a synced plugin | Turn the plugin off for your claude.ai account |
+| Committed into a repo | `git rm -r .claude/skills/planfirst .claude/skills/proceed` |
+
+`npx claude-planner --uninstall` does two things worth knowing:
+
+- **It restores what it displaced.** If installing moved an existing `planfirst` of yours to
+  `~/.claude/skills-backup/`, uninstalling puts it back.
+- **It will not delete a skill you have edited.** It compares each `SKILL.md` against this
+  package's copy; if they differ, it leaves the directory alone and says so. Your changes are
+  your work, not ours to throw away.
+
+To remove the marketplace as well, so it stops being refreshed:
+
+```bash
+/plugin marketplace remove claude-planner
+```
+
+Removing a marketplace uninstalls the plugins you installed from it.
+
+Start a new session afterwards — the skill list is read at startup, so a removal in a running
+session is not visible until then.
 
 ### Pick one route per person
 
