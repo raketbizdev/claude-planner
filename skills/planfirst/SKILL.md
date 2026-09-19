@@ -173,7 +173,9 @@ Expected impact:
 ```
 
 ### 6 · Detailed Execution Steps
-Sequenced, and detailed enough for another engineer to follow without guessing:
+Sequenced, and detailed enough for another engineer to follow without guessing — or to
+paste and run. Say the working directory once, at the top of this section, and write
+every command relative to it.
 
 ```
 STEP N
@@ -183,6 +185,7 @@ Where:           file, service, table, resource or configuration —
 Why:             why this step is necessary
 How:             the intended approach
 Change:          the edit itself — before and after (see below)
+Run:             the commands to do it, exactly as typed (see below)
 Expected Result: what is true once it is done
 Reversible:      yes — how it is undone
                  no  — why it is a one-way door
@@ -216,6 +219,30 @@ Change:   web/components/Header.tsx:18-24
   and say what will settle it. An invented before block is worse than an absent one.
 - For a step that changes no code — a decision, a login, a deploy, a release — write
   `Change: n/a — <why>`.
+
+**`Run` is what makes the plan followable without you.** A plan that only an agent can execute
+is a plan the reader cannot check, hand to a colleague, or repeat in six months. Give the
+commands as typed:
+
+```
+Run:   npm test
+       git apply <<'PATCH'
+       …the diff from Change:, verbatim…
+       PATCH
+```
+
+- Commands must work **as pasted**, in the order given, from the working directory stated at the
+  top of this section. Say the directory once; do not repeat `cd` in every step.
+- `Run` and `Change` must agree. If pasting the commands would not produce the before/after
+  shown above them, one of the two is wrong.
+- Mark anything a command cannot do: `Run: by hand — <what to click, where>`. An interactive
+  login, a console toggle, a one-time password. Do not dress a human action up as a command.
+- Placeholders are written `<like-this>`, and the line below says what fills them. A pasted
+  command with an unmarked placeholder fails somewhere confusing.
+- A destructive command is marked as such and carries its undo on the next line. `Reversible:`
+  says whether it can be undone; `Run:` says how.
+- Where the command cannot be known until an earlier step has run, write `Not yet verified.` and
+  say what settles it.
 
 **`Reversible` is not paperwork.** A migration that has been applied, a deploy that has gone
 out, a phone number that has been published, a row that has been deleted — each is a door that
