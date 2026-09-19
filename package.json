@@ -21,7 +21,7 @@
     "workflow"
   ],
   "bin": {
-    "claude-planner": "./cli.mjs"
+    "claude-planner": "cli.mjs"
   },
   "files": [
     "skills",
