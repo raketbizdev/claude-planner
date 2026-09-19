@@ -9,7 +9,23 @@
     {
       "name": "claude-planner",
       "source": "./",
-      "description": "/planfirst investigates and stops; /proceed executes only what was approved. Only the literal /proceed opens the gate — not \"yes\", \"ok\" or \"looks good\"."
+      "description": "/planfirst investigates and stops; /proceed executes only what was approved. Only the literal /proceed opens the gate — not \"yes\", \"ok\" or \"looks good\".",
+      "version": "1.0.0",
+      "author": {
+        "name": "Ruel Nopal",
+        "url": "https://github.com/raketbizdev"
+      },
+      "homepage": "https://github.com/raketbizdev/claude-planner#readme",
+      "repository": "https://github.com/raketbizdev/claude-planner",
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "planning",
+        "workflow",
+        "code-review",
+        "safety",
+        "agent-skills"
+      ]
     }
   ]
 }

@@ -6,7 +6,14 @@
     "name": "Ruel Nopal",
     "url": "https://github.com/raketbizdev"
   },
-  "homepage": "https://github.com/raketbizdev/claude-planner",
+  "homepage": "https://github.com/raketbizdev/claude-planner#readme",
   "repository": "https://github.com/raketbizdev/claude-planner",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "planning",
+    "workflow",
+    "code-review",
+    "safety",
+    "agent-skills"
+  ]
 }

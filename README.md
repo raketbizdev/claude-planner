@@ -268,27 +268,35 @@ cloud sessions.
 ### Anyone, on any Claude Code surface
 
 ```bash
-/plugin marketplace add anthropics/claude-plugins-community
+/plugin marketplace add raketbizdev/claude-planner
 /plugin install claude-planner
 ```
 
 Skills arrive namespaced: `/claude-planner:planfirst` and `/claude-planner:proceed`.
 
 The marketplace only has to be added once; afterwards `/plugin install claude-planner` is
-enough on its own. `claude-plugins-official` is registered automatically but `claude-community`
-is not, which is why the first line exists. On Claude Code v2.1.275 or later both steps
-collapse into one:
+enough on its own.
+
+#### From the community catalog — not listed yet
+
+`claude-community` is Anthropic's public catalog of third-party plugins. **`claude-planner` is
+not in it**, so the two lines below do not work yet — they are here for when it is. A plugin
+reaches that catalog only by passing Anthropic's review, and the catalog syncs nightly
+afterwards, so the one reliable way to know is to look for the name in the
+[catalog manifest](https://github.com/anthropics/claude-plugins-community/blob/main/.claude-plugin/marketplace.json).
 
 ```bash
-/plugin install claude-planner --marketplace anthropics/claude-plugins-community
+/plugin marketplace add anthropics/claude-plugins-community
+/plugin install claude-planner@claude-community
 ```
 
-Or install straight from this repository, without the community catalog:
+`claude-plugins-official` is registered automatically; `claude-community` is not, which is why
+the first line exists. The `@claude-community` suffix names the marketplace — that is the
+marketplace's own `name`, not its repository path, and it is only needed when the same plugin
+name exists in more than one catalog you have added.
 
-```bash
-/plugin marketplace add raketbizdev/claude-planner
-/plugin install claude-planner
-```
+Nothing about the community route changes what you get. Approved entries are pinned to a commit
+SHA of **this** repository, so it installs the same two files as the line above it.
 
 ### Cowork and cloud sessions
 

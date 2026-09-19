@@ -18,8 +18,10 @@ import { join } from 'node:path';
 
 const HERE = new URL('.', import.meta.url).pathname;
 let failed = 0;
+let ran = 0;
 
 const check = (name, pass, detail = '') => {
+  ran++;
   console.log(`  ${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? `\n        ${detail}` : ''}`);
   if (!pass) failed++;
 };
@@ -118,6 +120,6 @@ check(
   readFileSync(join(skills, 'proceed', 'SKILL.md'), 'utf8') === 'EDITED BY SOMEBODY',
 );
 
-console.log(`\n  ${String(7 - failed)}/7 passed\n`);
+console.log(`\n  ${ran - failed}/${ran} passed\n`);
 if (failed) process.exit(1);
 console.log('**What ships installs, backs up, and uninstalls without losing anybody’s work.**\n');
