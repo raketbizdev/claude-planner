@@ -178,14 +178,44 @@ Sequenced, and detailed enough for another engineer to follow without guessing:
 ```
 STEP N
 What:            exactly what will be done
-Where:           file, service, table, resource or configuration
+Where:           file, service, table, resource or configuration —
+                 with line numbers where they are known
 Why:             why this step is necessary
 How:             the intended approach
+Change:          the edit itself — before and after (see below)
 Expected Result: what is true once it is done
 Reversible:      yes — how it is undone
                  no  — why it is a one-way door
 Who:             me, or the user (and why it cannot be done for them)
 ```
+
+**`Change` is the field a reader can check.** "Update the header component" is an instruction;
+nobody reading it can tell whether you opened the right file. Show the edit:
+
+```
+Change:   web/components/Header.tsx:18-24
+
+          - before -
+          <nav className="flex gap-6">
+            {LINKS.map((l) => <NavLink key={l.href} {...l} />)}
+          </nav>
+
+          - after -
+          <a href={DOWNLOAD_URL} aria-label="Download the app">
+            <DownloadIcon className="h-5 w-5" />
+          </a>
+```
+
+- **Copy the before block out of the file. Do not retype it from memory.** It is the evidence
+  that the file was read at the line the step claims, and a remembered one proves nothing.
+- Excerpt the lines that change plus enough context to place them. Never paste a whole file.
+- For a new file, show its content — or its skeleton if it is long, and say which.
+- For one edit repeated across many files, show it once in full and list the remaining paths
+  with their line numbers.
+- Where the exact text cannot be known until an earlier step has run, write `Not yet verified.`
+  and say what will settle it. An invented before block is worse than an absent one.
+- For a step that changes no code — a decision, a login, a deploy, a release — write
+  `Change: n/a — <why>`.
 
 **`Reversible` is not paperwork.** A migration that has been applied, a deploy that has gone
 out, a phone number that has been published, a row that has been deleted — each is a door that
