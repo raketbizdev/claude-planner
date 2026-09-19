@@ -79,6 +79,12 @@ contradiction and do not note it as a risk and carry on. The plan you were about
 about a system that does not exist; the one worth writing starts from what the probe just showed
 you.
 
+Go back **once**. If a second probe also contradicts what you found, stop probing and write the
+plan you can actually write: section 0 reports both probes verbatim, every section that depends on
+the unresolved contradiction says `Not yet verified.`, and step 1 is whatever would settle it. Two
+failed probes mean the system is not understood yet — say so plainly. A third guess dressed as a
+plan is worth less than an honest account of what the system refused to confirm.
+
 If nothing about the task can be probed — a pure documentation change, say — write
 `Nothing to probe: <why>` in section 0 and move on. An invented probe is worse than an honest
 absence.

@@ -10,7 +10,7 @@
       "name": "claude-planner",
       "source": "./",
       "description": "/planfirst investigates and stops; /proceed executes only what was approved. Only the literal /proceed opens the gate — not \"yes\", \"ok\" or \"looks good\".",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "author": {
         "name": "Ruel Nopal",
         "url": "https://github.com/raketbizdev"
