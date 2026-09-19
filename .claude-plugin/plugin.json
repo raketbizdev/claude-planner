@@ -1,7 +1,7 @@
 {
   "name": "claude-planner",
   "description": "Two authority levels that separate deciding from doing. /planfirst investigates with read-only tools, probes the riskiest assumption, produces a plan in eighteen sections and STOPS. /proceed executes that plan, in sequence and within its scope, and reports against the acceptance criteria it wrote.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "Ruel Nopal",
     "url": "https://github.com/raketbizdev"
