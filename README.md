@@ -229,26 +229,43 @@ report working: **a criterion is ticked only because a command was run and its o
 
 ## Which surfaces run these
 
-Agent Skills do not run everywhere, and the differences are not obvious. This table is the
-thing to read before choosing how to install.
+Agent Skills do not run everywhere, and the surfaces that do run them do not read the same
+places. This table is the thing to read before choosing how to install. Every row was checked
+against Anthropic's skills documentation on 19 September 2026.
 
-| Surface | Runs skills? | From where |
+| Surface | Runs skills? | Reads them from |
 |---|---|---|
-| Terminal CLI | yes | personal, project, plugin, claude.ai sync |
-| IDE extensions (VS Code, JetBrains) | yes | personal, project, plugin, claude.ai sync |
-| Desktop app, local session | yes | personal, project, plugin, claude.ai sync |
-| Cowork | yes | plugin, claude.ai sync — **not** personal |
-| Cloud sessions (claude.ai/code) | yes | project, plugin, claude.ai sync — **not** personal |
-| **claude.ai chat** | **no** | — |
-| **Claude Design** | **no** | — |
+| Terminal CLI | yes | personal, project, nested, `--add-dir`, plugin, enterprise, claude.ai account |
+| IDE extensions (VS Code, JetBrains) | yes | the same list as the terminal |
+| Desktop app, local session | yes | the same list as the terminal |
+| Desktop scheduled tasks | yes | they run on your machine, so **personal** reaches them |
+| Cowork | yes | claude.ai account, plugin — **not** personal |
+| Cloud sessions (claude.ai/code), routines | yes | project, claude.ai account, plugin — **not** personal |
+| claude.ai chat | yes | claude.ai account only — uploaded under **Customize → Skills** |
+| Claude Design | not documented | — |
+
+**claude.ai chat does run skills.** Earlier versions of this README said it did not, and that
+was wrong: upload a skill under Customize → Skills with code execution turned on and it is
+available in chat. What chat does not give *these two* is anything to work on — no repository
+to read, no read-only probe to run, no files to change. `/planfirst` there would produce a plan
+about nothing. Running and being useful are different questions, and this is the row where they
+come apart.
+
+**Claude Design is not a documented skills surface.** Its help pages do not mention Agent Skills
+at all, which is a different claim from "it runs none" and is the one that can be checked. Either
+way there is nothing to install into it; the way to gate design work is further down.
 
 The row that catches people is **personal**. From Anthropic's documentation:
 
 > Cowork sessions and cloud sessions, including routines, don't read `~/.claude/skills/` on
-> your machine.
+> your machine. Both interactive and scheduled Cowork sessions load the skills enabled for your
+> claude.ai account, synced at session start [...] Cloud sessions additionally load project
+> skills committed to the cloned repository's `.claude/skills/`.
 
 Cloud sessions run on Anthropic's machines. Your home directory is not there. So installing
-locally — the first route below — does not reach them, however it is done.
+locally — the first route below — does not reach them, however it is done. Desktop scheduled
+tasks are the exception that proves the rule: they run on your machine, so they *do* load
+`~/.claude/skills/`.
 
 ## Install
 
@@ -262,8 +279,8 @@ Copies both skills into `~/.claude/skills/`. Anything already at those names is 
 `~/.claude/skills-backup/` — **not** beside the skills — and never deleted.
 `npx claude-planner --uninstall` reverses it and puts the backup back.
 
-Reaches the terminal, IDE extensions and the desktop app's local sessions. **Not** Cowork or
-cloud sessions.
+Reaches the terminal, IDE extensions, the desktop app's local sessions and desktop scheduled
+tasks — everything that runs on this machine. **Not** Cowork or cloud sessions.
 
 ### Anyone, on any Claude Code surface
 
@@ -318,8 +335,17 @@ reaches terminal sessions too (v2.1.273+). Updates flow from the catalog; a sync
 managed on claude.ai rather than with `claude plugin install`.
 
 You can also upload the two skills to your claude.ai account directly, under **Customize** in
-the desktop sidebar or the skills settings on claude.ai. That gives `/planfirst` rather than
-`/claude-planner:planfirst`.
+the desktop sidebar or the skills settings on claude.ai. Cowork and cloud sessions then load
+them with the account, and so does a terminal session signed in to it: Claude Code downloads
+them into `~/.claude/skills/synced/` at startup and re-checks for changes about every ten
+minutes (v2.1.273+). A synced skill answers to `/anthropic-skills:planfirst` and to the short
+`/planfirst` — the short name only if nothing else has already taken it.
+
+One restriction on synced skills does not bite here. Outside Cowork and cloud sessions, Claude
+Code does not run a synced skill's `!` command lines, does not attach the files its `@`
+references name, and does not substitute `${CLAUDE_PROJECT_DIR}`; all three reach the model as
+literal text. Neither of these skills uses any of it — they are plain instructions — so nothing
+is lost by syncing them.
 
 ### One repository, and everyone who clones it
 
@@ -379,8 +405,10 @@ plugin, rather than letting you find out later.
 
 ## Using these with Claude Design
 
-**Claude Design runs no Agent Skills.** Neither does claude.ai chat. No packaging changes that
-— there is nothing to install into those surfaces.
+**Claude Design is not a documented skills surface** — its help pages do not mention Agent
+Skills at all. claude.ai chat is different: it does run them, but it has no repository to
+investigate and no files to change, which comes to the same thing for these two. No packaging
+changes either case.
 
 What works is the gate sitting upstream, in Claude Code, where the skills that reach into
 Claude Design actually run:
